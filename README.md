@@ -1,5 +1,6 @@
-## End-to-End Encryption Message Application
+# End-to-End Encryption Message Application
 
+## About End-to-End Encryption
 ### What is End-to-End Encryption?
 Suppose two users Alice and Bob want to communicate, but they do not trust any other party to process or store their plain-text messages. 
 More specifically, they do not want any messaging service to have any computationally feasible way to read their messages. End-to-end encryption solves for this problem by utilizing asymmetric encryption.
@@ -20,3 +21,7 @@ Therefore, Alice and Bob are able to succesfully communicate through Sally witho
 
 There are various reasons parties should prefer End-to-End encryption. It is possible that will Sally maliciously attempts to read private communications between Alice and Bob.
 Morever, even if you trust Sally, it is possible an unrelated party compromises Sally and reads private communicate between Alice and Bob. 
+
+# About Our Implementation
+
+TODO: write
