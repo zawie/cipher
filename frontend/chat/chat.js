@@ -67,21 +67,23 @@ async function registerKey(keyUuid, keyPair) {
   const body = JSON.stringify({
     deviceUUID: getDeviceUUID(),
     keyUUID: keyUuid,
-    publicKey: btoa(JSON.stringify(await crypto.subtle.exportKey("jwk", keyPair.publicKey))),
-  })
-  
-  const response = await fetch('/api/key', {
-    method: 'POST',
+    publicKey: btoa(
+      JSON.stringify(await crypto.subtle.exportKey("jwk", keyPair.publicKey)),
+    ),
+  });
+
+  const response = await fetch("/api/key", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: body
-  })
-    
+    body: body,
+  });
+
   if (!response.ok) {
-    console.error('Failed to register key with server:', response)
+    console.error("Failed to register key with server:", response);
   } else {
-    console.log('Key registered with server:', response)
+    console.log("Key registered with server:", response);
   }
   return;
 }
@@ -118,7 +120,8 @@ async function encrypt(publicKey, plainText) {
     publicKey,
     encodedData,
   );
-  return cipherText;
+  
+  return btoa(String.fromCharCode(...new Uint8Array(cipherText)));
 }
 
 async function decrypt(privateKey, cipherText) {
@@ -149,9 +152,62 @@ async function refreshKeyPair() {
   }
 }
 
-async function sendMessage(message) {
+async function sendMessage(message, subject) {
   //TODO: Implement
-  console.log('Sending message', message )
+  console.log("Sending message to", subject);
+
+  const ciphers = await Promise.all(
+    await fetch(`/api/key?subject=${subject}`)
+      .then((response) => response.json())
+      .then(async (subjectKeys) => {
+        console.log("Recieved:", subjectKeys);
+        await subjectKeys.forEach(async (keyEntry) => {
+          keyEntry.PublicKey = await crypto.subtle.importKey(
+            "jwk",
+            JSON.parse(atob(keyEntry.Encoded)),
+            { name: "RSA-OAEP", hash: "SHA-256" },
+            true,
+            ["encrypt"],
+          );
+        });
+        
+        const myLatestKeyUUID = localStorage.getItem("latestKey");
+        const myKey = {
+          UUID: myLatestKeyUUID,
+          PublicKey: (await getKey(myLatestKeyUUID)).keyPair.publicKey,
+        };
+        
+        return [myKey, ...subjectKeys].map(async (key) => {
+          console.debug("Encrypting with ", key.UUID, key.PublicKey);
+          return {
+            keyUUID: key.UUID,
+            cipher: await encrypt(key.PublicKey, message),
+          };
+        });
+      }),
+  );
+
+  console.log("Ciphers:", ciphers);
+  const body = JSON.stringify({
+    recipient: subject,
+    ciphers: ciphers,
+  });
+  console.log("Sending body:", body);
+  
+  const response = await fetch(`/api/message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body,
+  });
+
+  if (!response.ok) {
+    console.error("Failed to send message:", response);
+  } else {
+    console.log("Message sent:", response);
+  }
+
   return;
 }
 
@@ -160,11 +216,13 @@ async function sendMessage(message) {
 */
 function displayMessage(message) {
   console.log("Message received:", message);
-  document.getElementById('convo-div')
-    .insertAdjacentHTML('afterend', `<div class="chat chat-start">
+  document.getElementById("convo-div").insertAdjacentHTML(
+    "afterend",
+    `<div class="chat chat-start">
       <div class="chat-bubble">${message}</div>
         <div class="chat-footer opacity-50">Delivered</div>
-        </div>`)
+        </div>`,
+  );
 }
 
 async function refreshIfNecessary() {
@@ -187,42 +245,30 @@ async function refreshIfNecessary() {
 // Automatically key if key pair needs refresh on page load
 refreshIfNecessary();
 
-getLatestKey()
-  .then(async key => {
-    console.log("Using key", key);
-    await new Promise(r => setTimeout(r, 2000));
-    
-    encrypt(key.keyPair.publicKey, "Hello, World!")
-      .then(
-        async (messageRecieved) =>
-          await decrypt(key.keyPair.privateKey, messageRecieved),
-      )
-      .then(displayMessage);
-    return key;
-  })
-
-
 function getSubject() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  return urlParams.get('subject');
+  return urlParams.get("subject");
 }
 
 function setSubjectDisplay(subject) {
-  document.getElementById('title').innerHTML = `${subject} Chat`
-  document.getElementById('subject-title').innerHTML = subject
+  document.getElementById("title").innerHTML = `${subject} Chat`;
+  document.getElementById("subject-title").innerHTML = subject;
 }
+
 function onLoad() {
   const subject = getSubject();
-  setSubjectDisplay(subject)
-  
+  setSubjectDisplay(subject);
+
+  console.log("Device UUID", getDeviceUUID());
+
   // Listen for chat input
-  const chatInput = document.getElementById('chat-input')
-  chatInput.addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-      const inputMessage = chatInput.value
-      chatInput.value = null
-      sendMessage(inputMessage);
+  const chatInput = document.getElementById("chat-input");
+  chatInput.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      const inputMessage = chatInput.value;
+      chatInput.value = null;
+      sendMessage(inputMessage, subject);
     }
   });
 }

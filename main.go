@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"zawie.io/e2e/backend/keyservice"
+	"zawie.io/e2e/backend/messageservice"
 )
 
 // TODO: Read values from environment variables
@@ -14,6 +15,7 @@ func main() {
 	// Serve static files inside each page directory
 	http.Handle("/chat/", http.StripPrefix("/chat/", http.FileServer(http.Dir("frontend/chat"))))
 	http.HandleFunc("/api/key", keyservice.Handler)
+	http.HandleFunc("/api/message", messageservice.Handler)
 
 	log.Println("Serving on https://localhost:8443")
 
