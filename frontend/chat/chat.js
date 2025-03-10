@@ -174,7 +174,7 @@ async function refreshIfNecessary() {
     await refreshKeyPair();
     return;
   }
-  if (key.createdAt < new Date(Date.now() - 1000).toISOString()) {
+  if (key.createdAt < new Date(Date.now() - 10000).toISOString()) {
     console.debug(
       "Most recent stored key is older than 10 second. Refreshing.",
     );
@@ -202,7 +202,19 @@ getLatestKey()
   })
 
 
+function getSubject() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  return urlParams.get('subject');
+}
+
+function setSubjectDisplay(subject) {
+  document.getElementById('title').innerHTML = `${subject} Chat`
+  document.getElementById('subject-title').innerHTML = subject
+}
 function onLoad() {
+  const subject = getSubject();
+  setSubjectDisplay(subject)
   
   // Listen for chat input
   const chatInput = document.getElementById('chat-input')
