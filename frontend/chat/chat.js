@@ -64,13 +64,25 @@ function getDeviceUUID() {
   Server interaction functions
 */
 async function registerKey(keyUuid, keyPair) {
-  //TODO: Implement
-  console.log(
-    "Registering key with server:",
-    getDeviceUUID(),
-    keyUuid,
-    keyPair,
-  );
+  const body = JSON.stringify({
+    deviceUUID: getDeviceUUID(),
+    keyUUID: keyUuid,
+    publicKey: btoa(JSON.stringify(await crypto.subtle.exportKey("jwk", keyPair.publicKey))),
+  })
+  
+  const response = await fetch('/api/key', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: body
+  })
+    
+  if (!response.ok) {
+    console.error('Failed to register key with server:', response)
+  } else {
+    console.log('Key registered with server:', response)
+  }
   return;
 }
 
@@ -162,7 +174,7 @@ async function refreshIfNecessary() {
     await refreshKeyPair();
     return;
   }
-  if (key.createdAt < new Date(Date.now() - 10000).toISOString()) {
+  if (key.createdAt < new Date(Date.now() - 1000).toISOString()) {
     console.debug(
       "Most recent stored key is older than 10 second. Refreshing.",
     );

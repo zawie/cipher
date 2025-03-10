@@ -1,2 +1,6 @@
 # Ignore keys
 *.pem
+*.db
+hidden
+
+.DS_Store
