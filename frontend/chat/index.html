@@ -17,9 +17,13 @@
             type="text/css"
         />
         <script src="chat.js"></script>
-
+        <link
+            href="style.css"
+            rel="stylesheet"
+            type="text/css"
+        />
     </head>
-    <body>
+    <body onload="onLoad();" >
         <div class="navbar bg-base-100 shadow-sm">
             <div class="chat-image avatar">
                 <div class="w-10 rounded-full">
@@ -38,7 +42,7 @@
             </button>
           </div>
         </div>
-        <div id="convo-div" style="padding: 50px">
+        <div id="convo-div" class="convo" style="padding: 50px">
             <!-- <div class="chat chat-start">
                 <div class="chat-bubble">You were the Chosen One!</div>
                 <div class="chat-footer opacity-50">Delivered</div>
@@ -48,6 +52,9 @@
                 <div class="chat-footer opacity-50">Seen at 12:46</div>
             </div> -->
         </div>
-        <input type="text" placeholder="Type here" class="input input-ghost" />
+        <div class="chat-box">
+            <input id="chat-input" type="text" placeholder="Type here" class="input input-ghost" size="large" />
+            
+        </div>
     </body>
 </html>

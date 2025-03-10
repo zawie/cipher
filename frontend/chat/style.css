@@ -1,0 +1,17 @@
+.chat-box {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    padding: 15px;
+}
+
+#chat-input {
+    width: 100%;
+}
+
+body {
+    position: relative;
+    min-height: 100vh;
+}
+
+.

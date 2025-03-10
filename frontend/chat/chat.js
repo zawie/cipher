@@ -137,6 +137,12 @@ async function refreshKeyPair() {
   }
 }
 
+async function sendMessage(message) {
+  //TODO: Implement
+  console.log('Sending message', message )
+  return;
+}
+
 /*
   Hooks
 */
@@ -169,7 +175,6 @@ async function refreshIfNecessary() {
 // Automatically key if key pair needs refresh on page load
 refreshIfNecessary();
 
-
 getLatestKey()
   .then(async key => {
     console.log("Using key", key);
@@ -183,3 +188,17 @@ getLatestKey()
       .then(displayMessage);
     return key;
   })
+
+
+function onLoad() {
+  
+  // Listen for chat input
+  const chatInput = document.getElementById('chat-input')
+  chatInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      const inputMessage = chatInput.value
+      chatInput.value = null
+      sendMessage(inputMessage);
+    }
+  });
+}
