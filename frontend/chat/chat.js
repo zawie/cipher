@@ -120,11 +120,16 @@ async function encrypt(publicKey, plainText) {
     publicKey,
     encodedData,
   );
-  
+
   return btoa(String.fromCharCode(...new Uint8Array(cipherText)));
 }
 
 async function decrypt(privateKey, cipherText) {
+  cipherText = new Uint8Array(
+    atob(cipherText)
+      .split("")
+      .map((c) => c.charCodeAt(0)),
+  );
   const plainText = await window.crypto.subtle.decrypt(
     {
       name: "RSA-OAEP",
@@ -170,13 +175,13 @@ async function sendMessage(message, subject) {
             ["encrypt"],
           );
         });
-        
+
         const myLatestKeyUUID = localStorage.getItem("latestKey");
         const myKey = {
           UUID: myLatestKeyUUID,
           PublicKey: (await getKey(myLatestKeyUUID)).keyPair.publicKey,
         };
-        
+
         return [myKey, ...subjectKeys].map(async (key) => {
           console.debug("Encrypting with ", key.UUID, key.PublicKey);
           return {
@@ -193,7 +198,7 @@ async function sendMessage(message, subject) {
     ciphers: ciphers,
   });
   console.log("Sending body:", body);
-  
+
   const response = await fetch(`/api/message`, {
     method: "POST",
     headers: {
@@ -211,17 +216,48 @@ async function sendMessage(message, subject) {
   return;
 }
 
+async function renderExistingMessages(subject) {
+  var me = subject == "anya" ? "zawie" : "anya";
+  const input = `/api/message?subject=${subject}`;
+  return await fetch(input)
+    .then((response) => response.json())
+    .then(async (body) => {
+      console.log(`Recieved ${body.messages.length}`);
+      for (const message of body.messages) {
+        let msg = "🔒 ENCRYPTED";
+        console.debug("Message:", message);
+        for (const cipher of message.ciphers) {
+          const key = await getKey(cipher.keyUUID);
+          if (key === null) {
+            console.debug("No private key found for", cipher.keyUUID);
+            continue;
+          }
+          console.debug("Found key corresponding to", cipher.keyUUID);
+          try {
+            console.debug("Decrypting with", key.keyPair.privateKey);
+            msg = await decrypt(key.keyPair.privateKey, cipher.cipher);
+            break;
+          } catch (e) {
+            console.error(
+              `Failed to decrypt message with ${cipher.keyUUID}:`,
+              e,
+            );
+          }
+        }
+        displayMessage(msg, message.sender == me ? "sent" : "received");
+      }
+    });
+}
 /*
   Hooks
 */
-function displayMessage(message) {
-  console.log("Message received:", message);
+function displayMessage(message, type) {
   document.getElementById("convo-div").insertAdjacentHTML(
     "afterend",
-    `<div class="chat chat-start">
-      <div class="chat-bubble">${message}</div>
-        <div class="chat-footer opacity-50">Delivered</div>
-        </div>`,
+    `<div class="chat chat-${type == "sent" ? "end" : "start"}">
+        <div class="chat-bubble">${message}</div>
+        <div class="chat-footer opacity-50"></div>
+      </div>`,
   );
 }
 
@@ -261,6 +297,9 @@ function onLoad() {
   setSubjectDisplay(subject);
 
   console.log("Device UUID", getDeviceUUID());
+
+  // Render existing messags
+  renderExistingMessages(subject);
 
   // Listen for chat input
   const chatInput = document.getElementById("chat-input");
