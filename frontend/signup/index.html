@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Cipher Signup</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0/themes.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script defer src="/static/auth.js"></script>
+    </head>
+    <body>
+        <div class="hero bg-base-200 min-h-screen">
+            <div class="hero-content flex-col lg:flex-row-reverse">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-5xl font-bold">Cipher</h1>
+                    <p class="py-5" style="white-space: nowrap">
+                        Free. Secure. Private.
+                    </p>
+                </div>
+                <div
+                    class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl"
+                >
+                    <div class="card-body">
+                        <text>
+                            Already a cipher user?
+                            <a class="link" href="/login">Login.</a>
+                        </text>
+                        <form onsubmit="return onSignupFormSubmit(event)">
+                            <fieldset class="fieldset">
+                                <label class="fieldset-label">Alias</label>
+                                <input
+                                    type="text"
+                                    class="input validator"
+                                    placeholder="Alias"
+                                    minlength="3"
+                                    name="alias"
+                                    required
+                                />
+                                <div class="validator-hint">
+                                    Alias too short
+                                </div>
+
+                                <label class="fieldset-label">Password</label>
+                                <input
+                                    type="password"
+                                    class="input validator"
+                                    placeholder="Password"
+                                    name="password"
+                                    id="password"
+                                    minlength="8"
+                                    required
+                                />
+                                <div class="validator-hint">
+                                    Password too short
+                                </div>
+
+                                <label class="fieldset-label"
+                                    >Confirm Password</label
+                                >
+                                <input
+                                    type="password"
+                                    class="input validator"
+                                    placeholder="Password"
+                                    oninvalid="this.setCustomValidity(this.value !== password.value ? 'Passwords do not match!' : '')"
+                                    onfocus="this.setCustomValidity(this.value !== password.value ? 'Passwords do not match!' : '')"
+                                    oninput="this.setCustomValidity(this.value !== password.value ? 'Passwords do not match!' : '')"
+                                    name="confirm-password"
+                                    required
+                                />
+                                <div class="validator-hint">
+                                    Passwords must match
+                                </div>
+
+                                <button
+                                    id="submit-button"
+                                    class="btn btn-neutral mt-4"
+                                    type="submit"
+                                >
+                                    Signup
+                                </button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
