@@ -50,7 +50,49 @@ func insertUser(id, alias, salt, hashedAndSaltedPassword string) (err error) {
 	return
 }
 
-func pullSession(id string, maxLife time.Duration) (alias string, err error) {
+func getSalt(alias string) (salt string, err error) {
+	// Open (or create) an SQLite database file
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer db.Close()
+
+	createUserTable(db)
+
+	err = db.QueryRow("SELECT salt FROM user WHERE alias = ? LIMIT 1", alias).Scan(&salt)
+
+	if err != nil {
+		log.Printf("[ERROR] Error when querying for saly: %s", err.Error())
+		return
+	}
+
+	return
+}
+
+func checkPassword(alias, hashedAndSaltedPassword string) (valid bool, err error) {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer db.Close()
+
+	createUserTable(db)
+
+	query := "SELECT EXISTS(SELECT 1 FROM user WHERE alias = ? AND password = ?)"
+	err = db.QueryRow(query, alias, hashedAndSaltedPassword).Scan(&valid)
+
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	return
+}
+
+func pullSession(id string, aliasClaim string, maxLife time.Duration) (alias string, err error) {
 	// Open (or create) an SQLite database file
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
@@ -60,8 +102,8 @@ func pullSession(id string, maxLife time.Duration) (alias string, err error) {
 
 	createSessionTable(db)
 
-	query := fmt.Sprintf("SELECT alias FROM session WHERE session.id = ? AND created_at > datetime('now', '%f hours')", maxLife.Hours())
-	err = db.QueryRow(query, id).Scan(&alias)
+	query := fmt.Sprintf("SELECT alias FROM session WHERE alias = ? AND session.id = ? AND created_at > datetime('now', '-%f hours')", maxLife.Hours())
+	err = db.QueryRow(query, aliasClaim, id).Scan(&alias)
 
 	return
 }

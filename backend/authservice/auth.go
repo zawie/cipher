@@ -80,5 +80,36 @@ func initiateSession(w http.ResponseWriter, alias string) {
 		panic(err) // TODO: Gracefully handle this error
 	}
 	log.Printf("Intiating session %s for alias %s\n", id, alias)
-	setAuthCookie(w, id)
+
+	setAuthCookie(w, fmt.Sprintf("%s:%s", alias, id))
+}
+
+func checkAuthentication(r *http.Request) (alias string, authenticated bool, err error) {
+	cookie, err := r.Cookie(AUTH_COOKIE_NAME)
+	if err != nil {
+		if err == http.ErrNoCookie {
+			err = nil
+			authenticated = false
+		}
+		return
+	}
+
+	parts := strings.Split(cookie.Value, ":")
+	if len(parts) != 2 {
+		return "", false, fmt.Errorf("Invalid cookie")
+	}
+	claimedAlias, sessionId := parts[0], parts[1]
+
+	// Alias claim is checked in DB query
+	alias, err = pullSession(sessionId, claimedAlias, 24*time.Hour)
+	if err != nil {
+		log.Printf("[ERROR] Error pulling session: %s\n", err.Error())
+		authenticated = false
+		alias = ""
+		return
+	}
+
+	authenticated = alias != ""
+
+	return
 }

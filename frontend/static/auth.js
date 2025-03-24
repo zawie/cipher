@@ -1,7 +1,8 @@
 const REGISTER_ENDPOINT = `/api/auth/register`;
+const LOGIN_ENDPOINT = `/api/auth/login`;
 
 /**
- * A point on a two dimensional plane.
+ * An object representing authentication information
  * @typedef {Object} AuthObject
  * @property {string} alias - The signin alias
  * @property {string} privatePassword - The password to use on the client side
@@ -15,12 +16,33 @@ const REGISTER_ENDPOINT = `/api/auth/register`;
  * @returns {boolean} Always returns false to prevent the form from submitting.
  */
 function onSignupFormSubmit(event) {
+  passAuthToEndpointFromFormEvent(event, REGISTER_ENDPOINT);
+  return false; // Return false to prevent form from submitting
+}
+
+/**
+ * Handles sign-up form submission
+ *
+ * @param {Event} event - The submit event from the form.
+ * @returns {boolean} Always returns false to prevent the form from submitting.
+ */
+function onLoginFormSubmit(event) {
+  passAuthToEndpointFromFormEvent(event, LOGIN_ENDPOINT);
+  return false; // Return false to prevent form from submitting
+}
+
+/**
+ * @param {Event} event - The submit event from the form.
+ * @param {string} endpoint - Endpoint to pass auth informaiton to
+ * @returns {boolean} Always returns false to prevent the form from submitting.
+ */
+function passAuthToEndpointFromFormEvent(event, endpoint) {
   event.preventDefault();
   disableButton();
 
   const auth = new AuthObject(event);
   auth.basicAuthHeader().then(async (authHeader) => {
-    const response = await fetch(REGISTER_ENDPOINT, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: authHeader,
@@ -33,9 +55,10 @@ function onSignupFormSubmit(event) {
       enableButton();
       return;
     }
-  });
 
-  return false; // Return false to prevent form from submitting
+    // Redirect to main page on sign-in success
+    window.location.href = "/";
+  });
 }
 
 /*

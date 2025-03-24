@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Cipher Login</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0/themes.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script defer src="/static/auth.js"></script>
+    </head>
+    <body>
+        <div class="hero bg-base-200 min-h-screen">
+            <div class="hero-content flex-col lg:flex-row-reverse">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-5xl font-bold">Cipher</h1>
+                    <p class="py-5" style="white-space: nowrap">
+                        Free. Secure. Private.
+                    </p>
+                </div>
+                <div
+                    class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl"
+                >
+                    <div class="card-body">
+                        <text>
+                            Not a cipher user yet?
+                            <a class="link" href="/signup"
+                                >Create an account.</a
+                            >
+                        </text>
+                        <form onsubmit="return onLoginFormSubmit(event)">
+                            <fieldset class="fieldset">
+                                <label class="fieldset-label">Alias</label>
+                                <input
+                                    type="text"
+                                    class="input validator"
+                                    placeholder="Alias"
+                                    name="alias"
+                                    required
+                                />
+
+                                <label class="fieldset-label">Password</label>
+                                <input
+                                    type="password"
+                                    class="input validator"
+                                    placeholder="Password"
+                                    name="password"
+                                    id="password"
+                                    required
+                                />
+
+                                <button
+                                    id="submit-button"
+                                    class="btn btn-neutral mt-4"
+                                    type="submit"
+                                >
+                                    Login
+                                </button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
