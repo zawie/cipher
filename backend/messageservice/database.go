@@ -25,6 +25,8 @@ func queryMessages(sender, recipient string) (messages []Message) {
 	}
 	defer db.Close()
 
+	creatMessageTable(db)
+
 	querySQL := `SELECT message_id, sender.alias, recipient.alias, message.created_at, key_id, message.cipher
 FROM message
          JOIN user sender
