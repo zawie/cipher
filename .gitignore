@@ -4,3 +4,6 @@
 hidden
 
 .DS_Store
+
+# Binaries
+e2e
