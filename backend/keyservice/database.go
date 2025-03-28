@@ -10,7 +10,7 @@ import (
 
 var dbPath = "sample.db"
 
-func insertKey(user, device, keyId, key string) {
+func insertKey(alias, device, keyId, key string) {
 	// Open (or create) an SQLite database file
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
@@ -21,8 +21,13 @@ func insertKey(user, device, keyId, key string) {
 	createKeyTable(db)
 
 	// Insert data into the table
-	insertSQL := `INSERT INTO key (user_id, device_id, key_id, key) VALUES (?, ?, ?, ?)`
-	_, err = db.Exec(insertSQL, user, device, keyId, key)
+	insertSQL := fmt.Sprintf(`
+	INSERT INTO key (user_id, device_id, key_id, key)
+	SELECT  user.id, '%s', '%s', '%s'
+	FROM    user
+	WHERE   alias = '%s'
+	`, device, keyId, key, alias)
+	_, err = db.Exec(insertSQL)
 	if err != nil {
 		log.Fatal(err)
 	}

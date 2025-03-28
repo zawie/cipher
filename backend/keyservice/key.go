@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"zawie.io/e2e/backend/authservice"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -56,16 +58,15 @@ func registerKey(w http.ResponseWriter, r *http.Request) (err error) {
 	var data registerKeyRequestData
 	err = json.Unmarshal(body, &data)
 
-	// TODO: Pull user UUID from auth; for now just use device UUID
-	UserUUID := data.DeviceUUID
-	log.Printf("Registration contents:\nUser\t%s\nDevice\t%s\nKey\t%s\nKey\t%v", UserUUID, data.DeviceUUID, data.KeyUUID, data.PublicKey)
+	alias := authservice.RetrieveAlias(r)
+	log.Printf("Registration contents:\nUser\t%s\nDevice\t%s\nKey\t%s\n", alias, data.DeviceUUID, data.KeyUUID)
 
 	if err != nil {
 		http.Error(w, "Error unmarshaling JSON", http.StatusBadRequest)
 		return
 	}
 
-	insertKey(UserUUID, data.DeviceUUID, data.KeyUUID, data.PublicKey)
+	insertKey(alias, data.DeviceUUID, data.KeyUUID, data.PublicKey)
 
 	return
 }
