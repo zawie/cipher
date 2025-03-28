@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"zawie.io/e2e/backend/authservice"
 )
 
 type postMessageRequest struct {
@@ -46,15 +47,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//TODO: Lol don't hardcode this
-		sender := "anya"
-		if data.Recipient == "anya" {
-			sender = "zawie"
-		}
-
+		sender := authservice.RetrieveAlias(r)
 		recipient := data.Recipient
 
-		log.Println("Inserting messages to database")
+		log.Printf("Inserting messages from \"%s\" to \"%s\" into the database\n", sender, recipient)
 		message_id := uuid.New().String()
 		insertMessage(message_id, sender, recipient, data.Ciphers)
 
@@ -63,15 +59,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
+		sender := authservice.RetrieveAlias(r)
 		recipient := r.URL.Query().Get("subject")
 		if recipient == "" {
 			http.Error(w, "Subject query parameter is required", http.StatusBadRequest)
 			return
-		}
-		//TODO: Lol don't hardcode this
-		sender := "anya"
-		if recipient == "anya" {
-			sender = "zawie"
 		}
 
 		log.Printf("Getting messages between \"%s\" and \"%s\"", sender, recipient)

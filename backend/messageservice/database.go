@@ -28,9 +28,9 @@ func queryMessages(sender, recipient string) (messages []Message) {
 	querySQL := `SELECT message_id, sender.alias, recipient.alias, message.created_at, key_id, message.cipher
 FROM message
          JOIN user sender
-              ON sender.user_id = message.sender_id
+              ON sender.id = message.sender_id
          JOIN user recipient
-              ON recipient.user_id = message.recipient_id
+              ON recipient.id = message.recipient_id
 WHERE (sender.alias = ? AND recipient.alias = ?)
    OR (recipient.alias = ? AND sender.alias = ?)`
 
@@ -122,7 +122,7 @@ func insertMessage(message_id, sender, recipient string, ciphers []cipher) (err 
 }
 
 func getUserIdFromAlias(db *sql.DB, alias string) (id string, err error) {
-	err = db.QueryRow("SELECT user_id FROM user WHERE alias = ? LIMIT 1", alias).Scan(&id)
+	err = db.QueryRow("SELECT id FROM user WHERE alias = ? LIMIT 1", alias).Scan(&id)
 
 	return
 }

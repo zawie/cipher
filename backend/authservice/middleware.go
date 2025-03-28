@@ -1,11 +1,12 @@
 package authservice
 
 import (
+	"context"
 	"log"
 	"net/http"
 )
 
-var ALIAS_KEY string = "ALIAS"
+const ALIAS_KEY string = "ALIAS"
 
 func AuthMiddleware(redirect bool, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +30,12 @@ func AuthMiddleware(redirect bool, next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		next(w, r)
+		ctx := context.WithValue(r.Context(), ALIAS_KEY, alias)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
+}
+
+func RetrieveAlias(r *http.Request) string {
+	return r.Context().Value(ALIAS_KEY).(string)
 }

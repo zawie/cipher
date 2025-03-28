@@ -53,7 +53,7 @@ FROM (SELECT user_id, key_id, key,
                  ORDER BY created_at DESC
                  ) rank
       FROM key) t
-JOIN user ON user.user_id = t.user_id
+JOIN user ON user.id = t.user_id
 WHERE t.rank = 1 AND user.alias = ?;`
 
 	rows, err := db.Query(querySQL, alias)
