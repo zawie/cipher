@@ -1,3 +1,10 @@
+import { displayMessage, createBubble, updateBubble } from "./bubbles.js";
+import {
+  encrypt,
+  decrypt,
+  generateDeviceUUID,
+  generateKeyPair,
+} from "./crypto.js";
 /*
   Local key storage and retrieval functions
 */
@@ -31,7 +38,7 @@ async function getKey(uuid) {
   }
 
   // Parse key information and import keys
-  parsedContent = JSON.parse(content);
+  let parsedContent = JSON.parse(content);
   parsedContent.keyPair.privateKey = await crypto.subtle.importKey(
     "jwk",
     parsedContent.keyPair.privateKey,
@@ -89,58 +96,6 @@ async function registerKey(keyUuid, keyPair) {
 }
 
 /*
-  Crypto functions
-*/
-async function generateKeyPair() {
-  const uuid = crypto.randomUUID();
-  const keyPair = await window.crypto.subtle.generateKey(
-    {
-      name: "RSA-OAEP",
-      modulusLength: 2048,
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]), // Equivalent to 65537
-      hash: "SHA-256",
-    },
-    true, // extractable
-    ["encrypt", "decrypt"], // key usages
-  );
-
-  return [uuid, keyPair];
-}
-
-function generateDeviceUUID() {
-  return crypto.randomUUID();
-}
-
-async function encrypt(publicKey, plainText) {
-  const encodedData = new TextEncoder().encode(plainText);
-  const cipherText = await window.crypto.subtle.encrypt(
-    {
-      name: "RSA-OAEP",
-    },
-    publicKey,
-    encodedData,
-  );
-
-  return btoa(String.fromCharCode(...new Uint8Array(cipherText)));
-}
-
-async function decrypt(privateKey, cipherText) {
-  cipherText = new Uint8Array(
-    atob(cipherText)
-      .split("")
-      .map((c) => c.charCodeAt(0)),
-  );
-  const plainText = await window.crypto.subtle.decrypt(
-    {
-      name: "RSA-OAEP",
-    },
-    privateKey,
-    cipherText,
-  );
-  return new TextDecoder().decode(plainText);
-}
-
-/*
   Other helper functions
 */
 async function refreshKeyPair() {
@@ -158,11 +113,20 @@ async function refreshKeyPair() {
 }
 
 async function sendMessage(message, subject) {
-  //TODO: Implement
   console.log("Sending message to", subject);
+
+  const msgGuiId = createBubble("sent");
 
   const ciphers = await Promise.all(
     await fetch(`/api/key?subject=${subject}`)
+      .then((response) => {
+        if (!response.ok) {
+          console.error("Failed to fetch subject keys:", response);
+          updateBubble(msgGuiId, message, "❌ Failed to send message");
+          rai;
+        }
+        return response;
+      })
       .then((response) => response.json())
       .then(async (subjectKeys) => {
         console.log("Recieved:", subjectKeys);
@@ -209,21 +173,34 @@ async function sendMessage(message, subject) {
 
   if (!response.ok) {
     console.error("Failed to send message:", response);
+    updateBubble(msgGuiId, message, "❌ Failed to send message");
   } else {
     console.log("Message sent:", response);
+    updateBubble(msgGuiId, message, "Sent");
   }
 
   return;
 }
 
+function scrollToBottom() {
+  // const convoDiv = document.getElementById("convo-div");
+  // convoDiv.scrollTop = convoDiv.scrollHeight;
+}
+
+window.onload = scrollToBottom;
+
 async function renderExistingMessages(subject) {
-  var me = subject == "anya" ? "zawie" : "anya";
+  var me = subject == "alice" ? "bob" : "alice";
   const input = `/api/message?subject=${subject}`;
   return await fetch(input)
     .then((response) => response.json())
     .then(async (body) => {
-      console.log(`Recieved ${body.messages.length}`);
-      for (const message of body.messages) {
+      if (body.messages == null) {
+        body.messages = [];
+      }
+      console.log(`Recieved ${body.messages.length} messages:\n${body}`);
+      for (let i = 0; i < body.messages.length; i++) {
+        const message = body.messages[i];
         let msg = "🔒 ENCRYPTED";
         console.debug("Message:", message);
         for (const cipher of message.ciphers) {
@@ -247,18 +224,6 @@ async function renderExistingMessages(subject) {
         displayMessage(msg, message.sender == me ? "sent" : "received");
       }
     });
-}
-/*
-  Hooks
-*/
-function displayMessage(message, type) {
-  document.getElementById("convo-div").insertAdjacentHTML(
-    "afterend",
-    `<div class="chat chat-${type == "sent" ? "end" : "start"}">
-        <div class="chat-bubble">${message}</div>
-        <div class="chat-footer opacity-50"></div>
-      </div>`,
-  );
 }
 
 async function refreshIfNecessary() {
@@ -311,3 +276,5 @@ function onLoad() {
     }
   });
 }
+
+onLoad();
