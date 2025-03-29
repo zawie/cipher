@@ -1,4 +1,6 @@
-# End-to-End Encryption Message Application
+# Cipher
+
+Cipher is a hobby end to end encryptyption (E2EE) messaging application. 
 
 ## About End-to-End Encryption
 ### What is End-to-End Encryption?
