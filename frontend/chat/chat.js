@@ -198,7 +198,12 @@ async function renderExistingMessages(subject) {
       if (body.messages == null) {
         body.messages = [];
       }
-      console.log(`Recieved ${body.messages.length} messages:\n${body}`);
+      body.messages.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+      console.debug(
+        `Recieved ${body.messages.length} messages:`,
+        body.messages,
+      );
       for (let i = 0; i < body.messages.length; i++) {
         const message = body.messages[i];
         let msg = "🔒 ENCRYPTED";
@@ -206,7 +211,7 @@ async function renderExistingMessages(subject) {
         for (const cipher of message.ciphers) {
           const key = await getKey(cipher.keyUUID);
           if (key === null) {
-            console.debug("No private key found for", cipher.keyUUID);
+            console.warn("No private key found for", cipher.keyUUID);
             continue;
           }
           console.debug("Found key corresponding to", cipher.keyUUID);
