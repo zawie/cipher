@@ -20,52 +20,96 @@
         <link href="style.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <div
-            class="navbar bg-base-100 shadow-sm"
-            style="position: fixed; z-index: 10; top: 0"
-        >
-            <div class="chat-image avatar">
-                <div class="w-10 rounded-full">
-                    <img
-                        alt="Tailwind CSS chat bubble component"
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                    />
+        <div id="side-section">
+            <ul class="list bg-base-100 rounded-box shadow-md">
+                <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
+                    Conversations
+                </li>
+
+                <li class="list-row">
+                    <a href="/?subject=zawie">
+                        <div>zawie</div>
+                        <div class="text-xs opacity-60">hello, world!</div>
+                    </a>
+                </li>
+
+                <li class="list-row">
+                    <a href="/?subject=alice">
+                        <div>alice</div>
+                        <div class="text-xs opacity-60">yay idk about that</div>
+                    </a>
+                </li>
+
+                <li class="list-row">
+                    <a href="/?subject=bob">
+                        <div>bob</div>
+                        <div class="text-xs opacity-60">
+                            COol, lets do it on Sunday?
+                        </div>
+                    </a>
+                </li>
+
+                <li class="list-row">
+                    <a href="/?subject=deana">
+                        <div>deana</div>
+                        <div class="text-xs opacity-60">
+                            I got some brownies for ya
+                        </div>
+                    </a>
+                </li>
+
+                <li class="list-row">
+                    <a href="/?subject=anzo">
+                        <div>anzo</div>
+                        <div class="text-xs opacity-60">Brooo stop</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="primary-section">
+            <div
+                class="navbar bg-base-100 shadow-sm"
+                style="position: fixed; z-index: 10; top: 0"
+            >
+                <div class="chat-image avatar">
+                    <div class="w-10 rounded-full">
+                        <img
+                            alt="Tailwind CSS chat bubble component"
+                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                        />
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <a id="subject-title" class="btn btn-ghost text-xl"></a>
+                </div>
+                <div class="flex-none">
+                    <button class="btn btn-square btn-ghost">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            class="inline-block h-5 w-5 stroke-current"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                            ></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <div class="flex-1">
-                <a id="subject-title" class="btn btn-ghost text-xl"></a>
+            <div id="convo-div"></div>
+            <div class="chat-box bg-base-100 shadow-sm">
+                <input
+                    id="chat-input"
+                    type="text"
+                    placeholder="Type here"
+                    class="input input-ghost"
+                    size="large"
+                />
             </div>
-            <div class="flex-none">
-                <button class="btn btn-square btn-ghost">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        class="inline-block h-5 w-5 stroke-current"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                        ></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <div id="convo-div">
-            <br />
-            <br />
-            <br />
-        </div>
-        <div class="chat-box bg-base-100 shadow-sm">
-            <input
-                id="chat-input"
-                type="text"
-                placeholder="Type here"
-                class="input input-ghost"
-                size="large"
-            />
         </div>
     </body>
 </html>
